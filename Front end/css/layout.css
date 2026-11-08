@@ -1,0 +1,48 @@
+/* Penyesuaian tata letak sidebar (dipindahkan dari <style> inline di index.html). */
+.app:not(.auth-mode) .sidebar {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+.app:not(.auth-mode) .sidebar nav {
+  flex: 0 0 auto;
+  margin-bottom: 16px;
+}
+
+/* Kartu misi: sembunyi di layar pendek, tampil di layar tinggi. */
+.app:not(.auth-mode) .sidebar-mission {
+  display: none !important;
+  flex: 0 0 auto;
+  margin-bottom: 16px;
+}
+
+@media (min-height: 900px) {
+  .app:not(.auth-mode) .sidebar-mission {
+    display: block !important;
+  }
+}
+
+/* Profil selalu menempel di dasar sidebar. */
+.app:not(.auth-mode) .sidebar-bottom {
+  position: sticky !important;
+  bottom: 0;
+  margin-top: auto !important;
+  padding: 14px 0 6px !important;
+  background: #08171b;
+  z-index: 2;
+}
+
+/* Elemen kecil yang dulu memakai style inline. */
+.auth-consent { display: block; margin: 10px 0; font-size: 12px; }
+.auth-demo { margin-top: 16px; }
+.auth-demo p { font-size: 12px; color: #91a8a6; margin: 0 0 8px; }
+
+/* Filter lanjutan di halaman Temukan makanan dan jarak antar bagian form. */
+#discoverFilters .report-box .form-grid { margin: 12px 0; align-items: end; }
+#discoverFilters .report-box .btn-row { margin-bottom: 8px; }
+.form-grid + .btn-row, .form-grid + label { margin-top: 14px; }
+.workflow-form .form-grid label { display: flex; align-items: center; gap: 8px; }
