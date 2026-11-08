@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PLATIFUL — Food Rescue Platform</title>
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/auth.css">
+<link rel="stylesheet" href="css/app-ui.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+</head>
+<body>
+<div class="app" id="app">
+  <aside class="sidebar">
+    <div class="brand"><span class="brand-icon">◈</span><div><b>PLATIFUL</b><small>FOOD RESCUE PLATFORM</small></div></div>
+    <div class="workspace"><span class="dot"></span> Workspace <span class="chev">⌄</span></div>
+    <nav id="nav"></nav>
+    <div class="sidebar-bottom">
+      <div class="profile-mini"><div class="avatar">PL</div><div><b>PLATIFUL</b><small>Akun belum dimuat</small></div></div>
+    </div>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <div class="crumb">Workspace <span>/</span> <b id="crumb">Sign in</b></div>
+      <div class="top-actions"><div class="avatar small">PL</div><button class="btn sm" id="logoutButton" type="button">Keluar</button></div>
+    </header>
+    <div class="content" id="content"></div>
+  </main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<!-- 1. Inti: utilitas, API, state, UI, event, router -->
+<script src="js/core/utils.js"></script>
+<script src="js/core/state.js"></script>
+<script src="js/core/ui.js"></script>
+<script src="js/core/api.js"></script>
+<script src="js/core/events.js"></script>
+<script src="js/core/router.js"></script>
+<script src="js/layout/shell.js"></script>
+
+<!-- 2. Autentikasi -->
+<script src="js/members/Ghefira%20Zahira%20Zulfa/PBI-01-accounts-authentication/frontend/auth.page.js"></script>
+
+<!-- 3. Halaman bersama semua peran -->
+<script src="js/members/Ghefira%20Zahira%20Zulfa/PBI-01-accounts-authentication/frontend/customer-dashboard.page.js"></script>
+<script src="js/members/Malika%20Khansa%20Tsabita/PBI-17-retailer-dashboard-reports/frontend/dashboard.page.js"></script>
+<script src="js/members/Ghefira%20Zahira%20Zulfa/PBI-01-accounts-authentication/frontend/account.page.js"></script>
+<script src="js/members/Harjuno/PBI-06-in-app-notifications/frontend/page.js"></script>
+<script src="js/members/Zaskia%20Khansa%20Salviadi/PBI-10-product-reports/frontend/my-reports.page.js"></script>
+<script src="js/members/Zaskia%20Khansa%20Salviadi/PBI-22-education-articles/frontend/public.page.js"></script>
+
+<!-- 4. Customer -->
+<script src="js/members/Zaskia%20Khansa%20Salviadi/PBI-21-product-filters/frontend/view.js"></script>
+<script src="js/members/Zaskia%20Khansa%20Salviadi/PBI-10-product-reports/frontend/report-form.view.js"></script>
+<script src="js/members/Kenneth%20Nathaniel%20Tirtadjaja/PBI-11-customer-orders/frontend/create-order.view.js"></script>
+<script src="js/members/Zaskia%20Khansa%20Salviadi/PBI-09-catalog-map-favorites/frontend/catalog.page.js"></script>
+<script src="js/members/Zaskia%20Khansa%20Salviadi/PBI-09-catalog-map-favorites/frontend/map.page.js"></script>
+<script src="js/members/Kenneth%20Nathaniel%20Tirtadjaja/PBI-11-customer-orders/frontend/pickup-code.view.js"></script>
+<script src="js/members/Kenneth%20Nathaniel%20Tirtadjaja/PBI-11-customer-orders/frontend/history.page.js"></script>
+<script src="js/members/Zaskia%20Khansa%20Salviadi/PBI-09-catalog-map-favorites/frontend/favorites.page.js"></script>
+<script src="js/members/Ghefira%20Zahira%20Zulfa/PBI-15-store-reviews/frontend/page.js"></script>
+
+<!-- 5. Retailer -->
+<script src="js/members/Kenneth%20Nathaniel%20Tirtadjaja/PBI-13-discount-schedule/frontend/view.js"></script>
+<script src="js/members/Malika%20Khansa%20Tsabita/PBI-08-product-templates/frontend/page.js"></script>
+<script src="js/members/Malika%20Khansa%20Tsabita/PBI-07-surplus-products/frontend/page.js"></script>
+<script src="js/members/Firman%20Adinata/PBI-20-no-show/frontend/actions.view.js"></script>
+<script src="js/members/Kenneth%20Nathaniel%20Tirtadjaja/PBI-12-retailer-orders-pickup/frontend/pickup.page.js"></script>
+<script src="js/members/Kenneth%20Nathaniel%20Tirtadjaja/PBI-12-retailer-orders-pickup/frontend/orders.page.js"></script>
+<script src="js/members/Zaskia%20Khansa%20Salviadi/PBI-10-product-reports/frontend/retailer-reports.page.js"></script>
+<script src="js/members/Ghefira%20Zahira%20Zulfa/PBI-02-retailer-store-management/frontend/page.js"></script>
+<script src="js/members/Harjuno/PBI-05-retailer-verification/frontend/retailer-verification.page.js"></script>
+<script src="js/members/Malika%20Khansa%20Tsabita/PBI-17-retailer-dashboard-reports/frontend/reports.page.js"></script>
+
+<!-- 6. Admin -->
+<script src="js/members/Harjuno/PBI-18-admin-statistics-export/frontend/dashboard.page.js"></script>
+<script src="js/members/Firman%20Adinata/PBI-03-user-management/frontend/page.js"></script>
+<script src="js/members/Harjuno/PBI-05-retailer-verification/frontend/admin-decisions.page.js"></script>
+<script src="js/members/Malika%20Khansa%20Tsabita/PBI-16-report-moderation/frontend/page.js"></script>
+<script src="js/members/Zaskia%20Khansa%20Salviadi/PBI-22-education-articles/frontend/admin.page.js"></script>
+<script src="js/members/Firman%20Adinata/PBI-04-product-categories/frontend/page.js"></script>
+<script src="js/members/Harjuno/PBI-18-admin-statistics-export/frontend/export.view.js"></script>
+<script src="js/members/Harjuno/PBI-19-platform-announcements/frontend/page.js"></script>
+<script src="js/members/Kenneth%20Nathaniel%20Tirtadjaja/PBI-14-platform-commission/frontend/page.js"></script>
+
+<script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+[
+  {
+    "id": "415004ca-218e-416e-87b3-cfcbd73160b7",
+    "name": "Tester Pastry Box",
+    "category": "Bakery",
+    "price": 15000,
+    "originalPrice": 28000,
+    "quantity": 7,
+    "store": "PLATIFUL Tester Bakery",
+    "storeId": "0742391c-0541-403f-ab11-2acbd8c51799"
+  }
+]
