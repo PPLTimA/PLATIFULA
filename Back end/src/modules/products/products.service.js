@@ -67,3 +67,47 @@ function presentProduct(product, { forOwner = false, now = localNow() } = {}) {
 }
 
 module.exports = { effectivePrice, isExpired, normalizeProduct, presentProduct };
+
+const db = require('../../core/database');
+
+class ProductsService {
+  async getProductsByRetailer(retailerId) {
+    const query = `SELECT * FROM products WHERE retailer_id = ? ORDER BY created_at DESC`;
+    return await db.query(query, [retailerId]);
+  }
+
+  async createProduct(retailerId, data) {
+    const { name, category_id, original_price, discounted_price, stock, expiry_date, description } = data;
+    const query = `
+      INSERT INTO products (retailer_id, name, category_id, original_price, discounted_price, stock, expiry_date, description, status, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'active', NOW())
+    `;
+    const result = await db.query(query, [retailerId, name, category_id, original_price, discounted_price, stock, expiry_date, description]);
+    return { id: result.insertId, ...data, status: 'active' };
+  }
+
+  async updateProduct(productId, retailerId, data) {
+    const { name, category_id, original_price, discounted_price, stock, expiry_date, description } = data;
+    const query = `
+      UPDATE products 
+      SET name = ?, category_id = ?, original_price = ?, discounted_price = ?, stock = ?, expiry_date = ?, description = ?, updated_at = NOW()
+      WHERE id = ? AND retailer_id = ?
+    `;
+    await db.query(query, [name, category_id, original_price, discounted_price, stock, expiry_date, description, productId, retailerId]);
+    return { id: productId, ...data };
+  }
+
+  async toggleProductStatus(productId, retailerId, status) {
+    const query = `UPDATE products SET status = ?, updated_at = NOW() WHERE id = ? AND retailer_id = ?`;
+    await db.query(query, [status, productId, retailerId]);
+    return { id: productId, status };
+  }
+
+  async deleteProduct(productId, retailerId) {
+    const query = `DELETE FROM products WHERE id = ? AND retailer_id = ?`;
+    await db.query(query, [productId, retailerId]);
+    return true;
+  }
+}
+
+module.exports = new ProductsService();
