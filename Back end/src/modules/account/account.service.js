@@ -1,4 +1,4 @@
-// Menghapus akun beserta data turunannya, dipakai oleh hapus akun sendiri dan hapus akun oleh admin.
+
 const db = require('../../core/database');
 const { destroyUserSessions } = require('../auth/auth.service');
 const { notify } = require('../notifications/notifications.service');
@@ -16,7 +16,7 @@ function removeUserCascade(userId) {
       order.status = STATUS.CANCELLED;
       if (order.storeId !== userId) restoreStock(order);
       const counterpart = order.customerId === userId ? order.storeId : order.customerId;
-      notify(counterpart, `Pesanan ${order.productName} dibatalkan karena akun terkait dihapus.`);
+      notify(counterpart, `Pesanan ${order.productName} dibatalkan karena akun terkait dihapus.`, { type: 'warning', page: 'orders' });
     });
   db.write('orders', orders);
 
