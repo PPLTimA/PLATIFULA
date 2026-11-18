@@ -1,0 +1,116 @@
+/* Sidebar sebagai drawer: tertutup secara default, dibuka dengan tombol garis tiga di topbar.
+   Berlaku di semua ukuran layar dan dimuat paling akhir agar menimpa aturan sidebar lain. */
+
+.topbar-left { display: flex; align-items: center; gap: 14px; min-width: 0; }
+
+.menu-toggle {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  padding: 0;
+  border: 1px solid #1d383d;
+  border-radius: 9px;
+  background: #0d1b22;
+  color: #c8d5d6;
+  cursor: pointer;
+  transition: border-color .15s, color .15s, background .15s;
+}
+.menu-toggle:hover, .menu-toggle:focus-visible { border-color: var(--green); color: var(--green); background: #10332f; outline: none; }
+
+.sidebar-close {
+  display: none;
+  position: absolute;
+  top: 14px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border: 1px solid #1d383d;
+  border-radius: 8px;
+  background: #0d1b22;
+  color: #9bb0b4;
+  font-size: 14px;
+  cursor: pointer;
+  z-index: 3;
+}
+.sidebar-close:hover, .sidebar-close:focus-visible { border-color: var(--green); color: var(--green); outline: none; }
+
+.sidebar-backdrop { display: none; }
+
+.app.auth-mode .menu-toggle,
+.app.auth-mode .sidebar-close { display: none !important; }
+
+.app:not(.auth-mode) .sidebar-close { display: block; }
+
+.app:not(.auth-mode) .sidebar-backdrop {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(3, 10, 13, 0.6);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .22s ease, visibility 0s linear .22s;
+}
+.app.sidebar-open .sidebar-backdrop { opacity: 1; visibility: visible; transition-delay: 0s; }
+
+/* Panel sidebar: melayang di atas konten, tersembunyi di luar layar saat tertutup. */
+.app:not(.auth-mode) .sidebar {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  z-index: 60;
+  width: min(280px, 86vw) !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 26px 15px 16px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  border-right: 1px solid #173136 !important;
+  border-bottom: 0 !important;
+  transform: translateX(-100%);
+  visibility: hidden;
+  transition: transform .22s ease, visibility 0s linear .22s;
+}
+.app.sidebar-open:not(.auth-mode) .sidebar {
+  transform: none;
+  visibility: visible;
+  transition-delay: 0s;
+  box-shadow: 18px 0 48px rgba(0, 0, 0, 0.45);
+}
+
+/* Pulihkan tampilan penuh menu di semua lebar layar (aturan layar kecil sebelumnya menyembunyikannya). */
+.app:not(.auth-mode) { flex-direction: row !important; }
+.app:not(.auth-mode) .sidebar > .brand { display: flex !important; }
+.app:not(.auth-mode) .sidebar > .brand div { display: block !important; }
+.app:not(.auth-mode) .sidebar > .workspace { display: block !important; }
+.app:not(.auth-mode) .sidebar .nav-label { display: block !important; }
+.app:not(.auth-mode) .sidebar nav {
+  display: block !important;
+  width: auto;
+  overflow: visible !important;
+}
+.app:not(.auth-mode) .sidebar .nav-item,
+.app:not(.auth-mode) .sidebar .nav-item:not(.active) {
+  display: flex !important;
+  width: 100% !important;
+  justify-content: flex-start !important;
+  padding: 10px 12px !important;
+  font-size: 12px !important;
+}
+.app:not(.auth-mode) .sidebar .nav-item em { display: inline !important; }
+.app:not(.auth-mode) .sidebar-bottom { display: block !important; }
+
+@media (max-width: 640px) {
+  .app:not(.auth-mode) .topbar { padding-left: 12px; padding-right: 12px; }
+  .topbar-left .crumb { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app:not(.auth-mode) .sidebar,
+  .app:not(.auth-mode) .sidebar-backdrop,
+  .menu-toggle { transition: none !important; }
+}

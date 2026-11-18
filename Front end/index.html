@@ -8,11 +8,15 @@
 <link rel="stylesheet" href="css/auth.css">
 <link rel="stylesheet" href="css/app-ui.css">
 <link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/notifications.css">
+<link rel="stylesheet" href="css/sidebar-drawer.css">
+<link rel="stylesheet" href="css/verification.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 </head>
 <body>
 <div class="app" id="app">
-  <aside class="sidebar">
+  <aside class="sidebar" id="sidebar">
+    <button class="sidebar-close" id="sidebarClose" type="button" aria-label="Tutup menu">✕</button>
     <div class="brand"><span class="brand-icon">◈</span><div><b>PLATIFUL</b><small>FOOD RESCUE PLATFORM</small></div></div>
     <div class="workspace"><span class="dot"></span> Workspace <span class="chev">⌄</span></div>
     <nav id="nav"></nav>
@@ -20,15 +24,21 @@
       <div class="profile-mini"><div class="avatar">PL</div><div><b>PLATIFUL</b><small>Akun belum dimuat</small></div></div>
     </div>
   </aside>
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
   <main class="main">
     <header class="topbar">
-      <div class="crumb">Workspace <span>/</span> <b id="crumb">Sign in</b></div>
-      <div class="top-actions"><div class="avatar small">PL</div><button class="btn sm" id="logoutButton" type="button">Keluar</button></div>
+      <div class="topbar-left">
+        <button class="menu-toggle" id="menuToggle" type="button" aria-label="Buka menu" aria-controls="sidebar" aria-expanded="false">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <div class="crumb">Workspace <span>/</span> <b id="crumb">Sign in</b></div>
+      </div>
+      <div class="top-actions"><div class="notif-wrap" id="notifWrap" hidden></div><div class="avatar small">PL</div><button class="btn sm" id="logoutButton" type="button">Keluar</button></div>
     </header>
     <div class="content" id="content"></div>
   </main>
 </div>
-<div class="toast" id="toast"></div>
+<div class="toast-stack" id="toastStack" aria-live="polite"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -40,6 +50,9 @@
 <script src="js/core/events.js"></script>
 <script src="js/core/router.js"></script>
 <script src="js/layout/shell.js"></script>
+<script src="js/layout/sidebar-toggle.js"></script>
+<!-- Pusat notifikasi (PBI-06): lonceng, badge, polling, toast notifikasi baru -->
+<script src="js/members/Harjuno/PBI-06-in-app-notifications/frontend/center.js"></script>
 
 <!-- 2. Autentikasi -->
 <script src="js/members/Ghefira%20Zahira%20Zulfa/PBI-01-accounts-authentication/frontend/auth.page.js"></script>
@@ -72,6 +85,7 @@
 <script src="js/members/Kenneth%20Nathaniel%20Tirtadjaja/PBI-12-retailer-orders-pickup/frontend/orders.page.js"></script>
 <script src="js/members/Zaskia%20Khansa%20Salviadi/PBI-10-product-reports/frontend/retailer-reports.page.js"></script>
 <script src="js/members/Ghefira%20Zahira%20Zulfa/PBI-02-retailer-store-management/frontend/page.js"></script>
+<script src="js/members/Harjuno/PBI-05-retailer-verification/frontend/document.view.js"></script>
 <script src="js/members/Harjuno/PBI-05-retailer-verification/frontend/retailer-verification.page.js"></script>
 <script src="js/members/Malika%20Khansa%20Tsabita/PBI-17-retailer-dashboard-reports/frontend/reports.page.js"></script>
 
@@ -79,6 +93,7 @@
 <script src="js/members/Harjuno/PBI-18-admin-statistics-export/frontend/dashboard.page.js"></script>
 <script src="js/members/Firman%20Adinata/PBI-03-user-management/frontend/page.js"></script>
 <script src="js/members/Harjuno/PBI-05-retailer-verification/frontend/admin-decisions.page.js"></script>
+<script src="js/members/Harjuno/PBI-05-retailer-verification/frontend/admin-review.page.js"></script>
 <script src="js/members/Malika%20Khansa%20Tsabita/PBI-16-report-moderation/frontend/page.js"></script>
 <script src="js/members/Zaskia%20Khansa%20Salviadi/PBI-22-education-articles/frontend/admin.page.js"></script>
 <script src="js/members/Firman%20Adinata/PBI-04-product-categories/frontend/page.js"></script>
