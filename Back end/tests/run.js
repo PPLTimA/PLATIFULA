@@ -19,6 +19,7 @@ const db = require('../src/core/database');
 const { createRequestHandler } = require('../src/app');
 const { hashPassword } = require('../src/modules/auth/auth.service');
 const { localNow, toMinutes } = require('../src/core/time');
+const { sendReminders } = require('../src/members/Harjuno/PBI-06-in-app-notifications/backend/reminders');
 
 let server;
 let baseUrl;
@@ -108,38 +109,58 @@ describe('PLATIFUL API', () => {
 
   // Retailer verification submission and admin decision.
   it('retailer harus terverifikasi sebelum memposting produk', async () => {
+    const png = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/rZkAAAAASUVORK5CYII=';
+    const pdf = `data:application/pdf;base64,${Buffer.from('%PDF-1.4\n%test\n').toString('base64')}`;
+    const form = (extra = {}) => ({
+      businessName: 'Test Bakery', ownerName: 'Budi', nib: '1234567890123', businessType: 'Toko roti / Bakery',
+      address: 'Jl. Mawar 1, Jakarta', phone: '081234567890', ...extra,
+    });
+    const submit = (body, status = 200) => api('POST', '/api/verification', { cookie: retailer.cookie, status, body });
+
     await api('POST', '/api/products', { cookie: retailer.cookie, status: 403, body: productBody() });
-    await api('POST', '/api/verification', { cookie: retailer.cookie, body: { proof: 'NIB 123' } });
-    await api('POST', '/api/verification', { cookie: retailer.cookie, status: 400, body: { proof: '' } });
-    await api('POST', '/api/verification', {
-      cookie: retailer.cookie,
-      status: 400,
-      body: { proofImage: { name: 'izin.svg', data: 'data:image/svg+xml;base64,PHN2Zz4=' } },
-    });
-    await api('POST', '/api/verification', {
-      cookie: retailer.cookie,
-      status: 400,
-      body: { proofImage: { name: 'palsu.png', data: 'data:image/png;base64,SGVsbG8=' } },
-    });
-    await api('POST', '/api/verification', {
-      cookie: retailer.cookie,
-      status: 400,
-      body: { proofImage: { name: 'besar.png', data: `data:image/png;base64,${'A'.repeat(700000)}` } },
-    });
-    const proofImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/rZkAAAAASUVORK5CYII=';
-    await api('POST', '/api/verification', {
-      cookie: retailer.cookie,
-      body: { proofImage: { name: 'izin-usaha.png', data: proofImage } },
-    });
+    // Isian wajib dan format.
+    await submit({ ...form(), businessName: '', document: { name: 'izin.png', data: png } }, 400);
+    await submit({ ...form({ nib: '12' }), document: { name: 'izin.png', data: png } }, 400);
+    await submit({ ...form({ phone: 'abc' }), document: { name: 'izin.png', data: png } }, 400);
+    await submit({ ...form({ businessType: 'Tidak ada' }), document: { name: 'izin.png', data: png } }, 400);
+    await submit(form(), 400); // dokumen wajib
+    // Dokumen: format, isi file, dan ukuran.
+    await submit({ ...form(), document: { name: 'izin.svg', data: 'data:image/svg+xml;base64,PHN2Zz4=' } }, 400);
+    await submit({ ...form(), document: { name: 'palsu.png', data: 'data:image/png;base64,SGVsbG8=' } }, 400);
+    await submit({ ...form(), document: { name: 'palsu.pdf', data: `data:application/pdf;base64,${Buffer.from('bukan pdf').toString('base64')}` } }, 400);
+    await submit({ ...form(), document: { name: 'besar.png', data: `data:image/png;base64,${'A'.repeat(700000)}` } }, 400);
+    // Pengajuan pertama dengan PDF, lalu diperbarui dengan gambar (masih pending).
+    await submit({ ...form(), document: { name: 'izin-usaha.pdf', data: pdf } });
+    await submit({ ...form({ notes: 'Catatan' }), document: { name: 'izin-usaha.png', data: png } });
+
     const list = await api('GET', '/api/admin/verifications', { cookie: admin.cookie });
-    const submission = list.data.find((v) => v.id === retailer.data.user.id);
-    assert.equal(submission.status, 'pending');
-    assert.equal(submission.proofImage.name, 'izin-usaha.png');
-    assert.equal(submission.proofImage.type, 'image/png');
-    assert.equal(submission.proofImage.data, proofImage);
+    const entry = list.data.find((v) => v.id === retailer.data.user.id);
+    assert.equal(entry.status, 'pending');
+    assert.equal(entry.name, 'Test Bakery');
+    assert.equal(entry.ownerName, 'Budi');
+    assert.equal(entry.document, undefined); // daftar tidak membawa isi dokumen
+    const detail = (await api('GET', `/api/admin/verifications/${retailer.data.user.id}`, { cookie: admin.cookie })).data;
+    assert.equal(detail.nib, '1234567890123');
+    assert.equal(detail.businessType, 'Toko roti / Bakery');
+    assert.equal(detail.notes, 'Catatan');
+    assert.equal(detail.email, 'retailer@example.test');
+    assert.equal(detail.document.name, 'izin-usaha.png');
+    assert.equal(detail.document.type, 'image/png');
+    assert.equal(detail.document.data, png);
+    await api('GET', '/api/admin/verifications/tidak-ada', { cookie: admin.cookie, status: 404 });
+    await api('GET', `/api/admin/verifications/${retailer.data.user.id}`, { cookie: customer.cookie, status: 403 });
+
+    // Tanpa file baru, dokumen sebelumnya dipakai lagi.
+    await submit(form({ notes: 'Revisi' }));
+    assert.equal((await api('GET', `/api/admin/verifications/${retailer.data.user.id}`, { cookie: admin.cookie })).data.document.data, png);
+
     await api('PATCH', `/api/admin/verifications/${retailer.data.user.id}`, { cookie: admin.cookie, status: 400, body: { action: 'reject' } });
     await api('PATCH', `/api/admin/verifications/${retailer.data.user.id}`, { cookie: admin.cookie, body: { action: 'approve' } });
     assert.equal((await api('GET', '/api/verification', { cookie: retailer.cookie })).data.status, 'approved');
+    // Sudah approved: retailer tidak bisa mengajukan lagi, admin tidak bisa menyetujui/menolak ulang.
+    await submit(form(), 409);
+    await api('PATCH', `/api/admin/verifications/${retailer.data.user.id}`, { cookie: admin.cookie, status: 409, body: { action: 'approve' } });
+    await api('PATCH', `/api/admin/verifications/${retailer.data.user.id}`, { cookie: admin.cookie, status: 409, body: { action: 'reject', reason: 'x' } });
   });
 
   // Retailer product listing, public catalog, and filter preferences.
@@ -236,6 +257,29 @@ describe('PLATIFUL API', () => {
     const own = (await api('GET', '/api/products', { cookie: retailer.cookie })).data.find((p) => p.id === stepped.id);
     assert.equal(own.price, 15000);
     assert.equal(own.currentPrice, 9000);
+  });
+
+  // PBI-06: pengingat pickup (pelanggan) dan produk hampir kedaluwarsa (retailer).
+  it('pengingat pickup dan produk hampir kedaluwarsa dikirim sekali', async () => {
+    const near = (await api('POST', '/api/products', { cookie: retailer.cookie, status: 201, body: productBody({ name: 'Reminder Pie', pickupEnd: '20:00' }) })).data;
+    const far = (await api('POST', '/api/products', { cookie: retailer.cookie, status: 201, body: productBody({ name: 'Far Pie', pickupEnd: '23:00' }) })).data;
+    const reminderOrder = (await api('POST', '/api/orders', { cookie: customer.cookie, status: 201, body: { productId: near.id, quantity: 1 } })).data;
+    const count = async (cookie, pattern) => (await api('GET', '/api/notifications', { cookie })).data.filter((n) => pattern.test(n.message)).length;
+
+    sendReminders({ date: near.expiryDate, minutes: 20 * 60 - 90 }); // 90 menit lagi: hanya retailer
+    assert.equal(await count(customer.cookie, /Pengingat.*Reminder Pie/), 0);
+    assert.equal(await count(retailer.cookie, /Pengingat: Reminder Pie/), 1);
+
+    const sooner = { date: near.expiryDate, minutes: 20 * 60 - 30 }; // 30 menit lagi: pelanggan juga
+    sendReminders(sooner);
+    sendReminders(sooner); // panggilan ulang tidak boleh menggandakan pengingat
+    assert.equal(await count(customer.cookie, /Pengingat.*Reminder Pie.*Kode pickup/), 1);
+    assert.equal(await count(retailer.cookie, /Pengingat: Reminder Pie/), 1);
+    assert.equal(await count(retailer.cookie, /Pengingat: Far Pie/), 0); // masih jauh dari batas
+
+    await api('PATCH', `/api/orders/${reminderOrder.id}`, { cookie: customer.cookie, body: { status: 'Cancelled' } });
+    await api('DELETE', `/api/products/${near.id}`, { cookie: retailer.cookie });
+    await api('DELETE', `/api/products/${far.id}`, { cookie: retailer.cookie });
   });
 
   // Retailer no-show handling and account suspension.
